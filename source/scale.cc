@@ -973,12 +973,13 @@ static int ScalePlaneBox(int src_width,
   int j, k;
   // Initial source x/y coordinate and step values as 16.16 fixed point.
   int x = 0;
-  int y = 0;
+  int y32 = 0;
   int dx = 0;
   int dy = 0;
-  const int max_y = (src_height << 16);
-  ScaleSlope(src_width, src_height, dst_width, dst_height, kFilterBox, &x, &y,
+  ScaleSlope(src_width, src_height, dst_width, dst_height, kFilterBox, &x, &y32,
              &dx, &dy);
+  int64_t y = y32;
+  const int64_t max_y = (int64_t)src_height << 16;
   src_width = Abs(src_width);
   {
     // Allocate a row buffer of uint16_t.
@@ -1039,13 +1040,13 @@ static int ScalePlaneBox(int src_width,
 
     for (j = 0; j < dst_height; ++j) {
       int boxheight;
-      int iy = y >> 16;
+      int iy = (int)(y >> 16);
       const uint8_t* src = src_ptr + iy * (int64_t)src_stride;
       y += dy;
       if (y > max_y) {
         y = max_y;
       }
-      boxheight = MIN1((y >> 16) - iy);
+      boxheight = MIN1((int)(y >> 16) - iy);
       memset(row16, 0, src_width * 2);
       for (k = 0; k < boxheight; ++k) {
         ScaleAddRow(src, (uint16_t*)(row16), src_width);
@@ -1070,12 +1071,13 @@ static int ScalePlaneBox_16(int src_width,
   int j, k;
   // Initial source x/y coordinate and step values as 16.16 fixed point.
   int x = 0;
-  int y = 0;
+  int y32 = 0;
   int dx = 0;
   int dy = 0;
-  const int max_y = (src_height << 16);
-  ScaleSlope(src_width, src_height, dst_width, dst_height, kFilterBox, &x, &y,
+  ScaleSlope(src_width, src_height, dst_width, dst_height, kFilterBox, &x, &y32,
              &dx, &dy);
+  int64_t y = y32;
+  const int64_t max_y = (int64_t)src_height << 16;
   src_width = Abs(src_width);
   {
     // Allocate a row buffer of uint32_t.
@@ -1096,13 +1098,13 @@ static int ScalePlaneBox_16(int src_width,
 
     for (j = 0; j < dst_height; ++j) {
       int boxheight;
-      int iy = y >> 16;
+      int iy = (int)(y >> 16);
       const uint16_t* src = src_ptr + iy * (int64_t)src_stride;
       y += dy;
       if (y > max_y) {
         y = max_y;
       }
-      boxheight = MIN1((y >> 16) - iy);
+      boxheight = MIN1((int)(y >> 16) - iy);
       memset(row32, 0, src_width * 4);
       for (k = 0; k < boxheight; ++k) {
         ScaleAddRow(src, (uint32_t*)(row32), src_width);
